@@ -1,0 +1,2 @@
+D:\UCSP\Semestres\Semestre VII\Computacion Grafica\CG-2020-I\firstOpenGL\x64\Debug\firstOpenGL.exe
+D:\UCSP\Semestres\Semestre VII\Computacion Grafica\CG-2020-I\firstOpenGL\x64\Debug\firstOpenGL.pdb
