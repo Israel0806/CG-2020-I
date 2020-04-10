@@ -153,21 +153,17 @@ int main () {
             0.2f,-0.4f, 0.0f,
             -0.1f,-0.4f, 0.0f,
             -0.1f,-0.3f, 0.0f,
-        //I = 6 triangles
-            0.6f,0.4f, 0.0f,
-            0.6f,0.3f, 0.0f,
-            0.3f,0.3f, 0.0f,
+        //L = 4 triangles
             0.3f,0.4f, 0.0f,
-
-            0.5f,0.3f, 0.0f,
-            0.5f,-0.3f, 0.0f,
-            0.4f,-0.3f, 0.0f,
-            0.4f,0.3f, 0.0f,
+            0.3f,-0.4f, 0.0f,
+            0.4f,-0.4f, 0.0f,
+            0.4f,0.4f, 0.0f,
 
             0.6f,-0.3f, 0.0f,
             0.6f,-0.4f, 0.0f,
-            0.3f,-0.4f, 0.0f,
-            0.3f,-0.3f, 0.0f,
+            0.4f,-0.4f, 0.0f,
+            0.4f,-0.3f, 0.0f,
+
         //L = 4 triangles
             0.8f,0.4f, 0.0f,
             0.8f,-0.4f, 0.0f,
@@ -182,7 +178,7 @@ int main () {
     };
     unsigned int indices[sizeof(vertices)/sizeof(vertices[0])];
     int indice = 0;
-    for ( int i = 0; i < 168; i += 6 ) {
+    for ( int i = 0; i < sizeof (vertices) / sizeof (vertices[0]); i += 6 ) {
         indices[i] = indice; indices[i + 1] = indice + 1; indices[i + 2] = indice + 3;
         indices[i + 3] = indice + 1; indices[i + 4] = indice + 2; indices[i + 5] = indice + 3;
         indice += 4;
@@ -223,7 +219,7 @@ int main () {
         // draw our first triangle
         glUseProgram (shaderProgram);
         glBindVertexArray (VAO); // seeing as we only have a single VAO there's no need to bind it every time, but we'll do so to keep things a bit more organized
-        glDrawElements (GL_TRIANGLES, 168, GL_UNSIGNED_INT, 0);
+        glDrawElements (GL_TRIANGLES, sizeof (vertices) / sizeof (vertices[0]), GL_UNSIGNED_INT, 0);
         // glBindVertexArray(0); // no need to unbind it every time 
 
 		glfwSwapBuffers (window); // swap buffers
