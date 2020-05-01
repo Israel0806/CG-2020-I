@@ -1,0 +1,2 @@
+D:\UCSP\Semestres\Semestre VII\Computacion Grafica\CG-2020-I\Laboratorio\Triangle change color\build\Debug\GLAD.pdb
+D:\UCSP\Semestres\Semestre VII\Computacion Grafica\CG-2020-I\Laboratorio\Triangle change color\build\GLAD.dir\Debug\GLAD.pdb

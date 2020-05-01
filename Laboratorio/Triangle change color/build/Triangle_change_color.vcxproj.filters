@@ -1,0 +1,36 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="16.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <ClCompile Include="D:\UCSP\Semestres\Semestre VII\Computacion Grafica\CG-2020-I\Laboratorio\Triangle change color\src\glad.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="D:\UCSP\Semestres\Semestre VII\Computacion Grafica\CG-2020-I\Laboratorio\Triangle change color\src\main.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="D:\UCSP\Semestres\Semestre VII\Computacion Grafica\CG-2020-I\Laboratorio\Triangle change color\include\GLFW\glfw3.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="D:\UCSP\Semestres\Semestre VII\Computacion Grafica\CG-2020-I\Laboratorio\Triangle change color\include\GLFW\glfw3native.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="D:\UCSP\Semestres\Semestre VII\Computacion Grafica\CG-2020-I\Laboratorio\Triangle change color\include\KHR\khrplatform.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="D:\UCSP\Semestres\Semestre VII\Computacion Grafica\CG-2020-I\Laboratorio\Triangle change color\include\glad\glad.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <CustomBuild Include="D:\UCSP\Semestres\Semestre VII\Computacion Grafica\CG-2020-I\Laboratorio\Triangle change color\CMakeLists.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="Header Files">
+      <UniqueIdentifier>{A34FD0BE-8137-3627-83A7-0D8A997E7930}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files">
+      <UniqueIdentifier>{47D06DCB-06D8-378B-86FA-F72820B0D7CE}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+</Project>

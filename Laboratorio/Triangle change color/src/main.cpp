@@ -213,7 +213,7 @@ int main () {
 
 
         // now when we draw the triangle we first use the vertex and orange fragment shader from the first program
-        glUseProgram (shaderProgram2);
+        glUseProgram (shaderProgram1);
 
         glUniform4f (vertexColorLocation2, red2, green2, blue2, 1.0f);
         // draw the first triangle using the data from our first VAO
@@ -221,6 +221,7 @@ int main () {
         glDrawArrays (GL_TRIANGLES, 0, 3);	// this call should output an orange triangle
         // then we draw the second triangle using the data from the second VAO
         // when we draw the second triangle we want to use a different shader program so we switch to the shader program with our yellow fragment shader.
+        glUseProgram (shaderProgram2);
         glUniform4f (vertexColorLocation1, red1, green1, blue1, 1.0f);
         glBindVertexArray (VAOs[1]);
         glDrawArrays (GL_TRIANGLES, 0, 3);	// this call should output a yellow triangle
