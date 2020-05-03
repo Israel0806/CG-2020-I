@@ -1,6 +1,7 @@
 #include <glad/glad.h>
 #include <GLFW\glfw3.h>
 #include "shader.h"
+#include "sierpinsky.h"
 #define STB_IMAGE_IMPLEMENTATION
 #include "stb_image.h"
 
@@ -14,27 +15,33 @@ unsigned int VBO, VAO, EBO;
 unsigned int texture1, texture2;
 Shader *myShader;
 float mixer = 0.2;
+Sierpinski *fractal;
+float *vertices;
+
+void reDraw () {
+	delete[] vertices;
+	vertices = fractal->getVertex ();
+	float sizeVertices = fractal->getNumVertex () * sizeof (vertices[0]);
+	glBindBuffer (GL_ARRAY_BUFFER, VBO);
+	glBufferData (GL_ARRAY_BUFFER, sizeVertices, vertices, GL_DYNAMIC_DRAW);
+}
 
 void framebuffer_size_callback (GLFWwindow *window, int w, int h) {
 	glViewport (500, 500, w, h);
 }
 
 void processInput (GLFWwindow *window, int key, int scancode, int action, int mods) {
-	if ( key == GLFW_KEY_ESCAPE && action == GLFW_PRESS )
+	if ( key == GLFW_KEY_ESCAPE && (action == GLFW_PRESS || action == GLFW_REPEAT) )
 		glfwSetWindowShouldClose (window, true);
-	if ( key == GLFW_KEY_DOWN && action == GLFW_PRESS ) {
-		if ( mixer >= 0.1 ) {
-			cout << mixer << endl;
-			mixer -= 0.1;
-			myShader->setFloat ("mixer", mixer);
-		}
-	}
+	if ( key == GLFW_KEY_P && action == GLFW_PRESS )
+		fractal->print ();
 	if ( key == GLFW_KEY_UP && action == GLFW_PRESS ) {
-		if ( mixer < 1 ) {
-			cout << mixer << endl;
-			mixer += 0.1;
-			myShader->setFloat ("mixer", mixer);
-		}
+		fractal->addLevel ();
+		reDraw ();
+	}
+	if ( key == GLFW_KEY_DOWN && action == GLFW_PRESS ) {
+		fractal->removeLevel ();
+		reDraw ();
 	}
 }
 
@@ -56,23 +63,23 @@ void mouseButtonCallback (GLFWwindow *window, int button, int action, int mods) 
 }
 
 void scrollCallback (GLFWwindow *window, double xOffset, double yOffset) {
-	cout << xOffset << " " << yOffset << endl;
+	if ( yOffset == -1 )
+		fractal->removeLevel ();
+	else
+		fractal->addLevel ();
+	reDraw ();
 }
 
 
-void bufferConfig (float *vertices, int sizeVertex, unsigned int *indices, int sizeIndex) {
+void bufferConfig (float *vertices, int sizeVertex) {
 	glGenBuffers (1, &VBO);
 	glGenVertexArrays (1, &VAO);
-	glGenBuffers (1, &EBO);
 
 
 	// bind the Vertex Array Object first, then bind and set vertex buffer(s), and then configure vertex attributes(s).
 	glBindVertexArray (VAO);
 	glBindBuffer (GL_ARRAY_BUFFER, VBO);
 	glBufferData (GL_ARRAY_BUFFER, sizeVertex * sizeof (vertices[0]), vertices, GL_STATIC_DRAW);
-
-	glBindBuffer (GL_ELEMENT_ARRAY_BUFFER, EBO);
-	glBufferData (GL_ELEMENT_ARRAY_BUFFER, sizeIndex * sizeof (indices[0]), indices, GL_STATIC_DRAW);
 
 	// coordinates
 	glVertexAttribPointer (0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof (float), (void *)0);
@@ -123,7 +130,7 @@ void textureConfig () {
 	glBindTexture (GL_TEXTURE_2D, texture2);
 
 	// set the texture wrapping parameters
-	glTexParameteri (GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_MIRRORED_REPEAT);	// we want to repeat the awesomeface pattern so we kept it at GL_REPEAT
+	glTexParameteri (GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);	// we want to repeat the awesomeface pattern so we kept it at GL_REPEAT
 	glTexParameteri (GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
 	// set texture filtering parameters
 	glTexParameteri (GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
@@ -153,9 +160,8 @@ void displayWindow (GLFWwindow *window, int size) {
 	glActiveTexture (GL_TEXTURE1);
 	glBindTexture (GL_TEXTURE_2D, texture2);
 
-	myShader->use ();
 	glBindVertexArray (VAO); // seeing as we only have a single VAO there's no need to bind it every time, but we'll do so to keep things a bit more organized
-	glDrawElements (GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+	glDrawArrays (GL_TRIANGLES, 0, fractal->getNumVertex());
 	// glBindVertexArray(0); // no need to unbind it every time 
 
 	glfwSwapBuffers (window); // swap buffers
@@ -196,29 +202,34 @@ int main () {
 		cout << "Failed to initialize GLAD" << endl;
 		return -1;
 	}
-
+	fractal = new Sierpinski ();
 	myShader = new Shader ("../src/shader.vs", "../src/shader.fs");
+	myShader->use ();
 	myShader->setFloat ("mixer", mixer);
 	// set up vertex data (and buffer(s)) and configure vertex attributes
 	// ------------------------------------------------------------------
 
-	float vertices[] = {
-		// positions          // colors           // texture coords
-		 0.5f,  0.5f, 0.0f,   1.0f, 0.0f, 0.0f,   2.0f, 2.0f,   // top right
-		 0.5f, -0.5f, 0.0f,   0.0f, 1.0f, 0.0f,   2.0f, 0.0f,   // bottom right
-		-0.5f, -0.5f, 0.0f,   0.0f, 0.0f, 1.0f,   0.0f, 0.0f,   // bottom left
-		-0.5f,  0.5f, 0.0f,   1.0f, 1.0f, 0.0f,   0.0f, 2.0f    // top left 
-	};
-	unsigned int indices[] = {
-	0, 1, 3, // first triangle
-	1, 2, 3  // second triangle
-	};
-	int sizeVertex = sizeof (vertices) / sizeof (vertices[0]);
-	int sizeIndex = sizeof (indices) / sizeof (indices[0]);
+	Vertex *v1 = new Vertex (0.0f, 0.5f, 0.0f, 1.0f, 0.0f, 0.0f);
+	Vertex *v2 = new Vertex (0.5f, -0.5f, 0.0f, 1.0f, 0.0f, 0.0f);
+	Vertex *v3 = new Vertex (-0.5f, -0.5f, 0.0f, 1.0f, 0.0f, 0.0f);
+	fractal->addTriangle (v1, v2, v3);
+	// Vertex Buffer Object, Vertex Array Object, Element Buffer Object
+	fractal->createLevels (10);
+
+
+	//float vertices[] = {
+	//	// positions          // colors           // texture coords
+	//	 0.5f,  0.5f, 0.0f,   1.0f, 0.0f, 0.0f,   2.0f, 2.0f,   // top right
+	//	 0.5f, -0.5f, 0.0f,   0.0f, 1.0f, 0.0f,   2.0f, 0.0f,   // bottom right
+	//	-0.5f, -0.5f, 0.0f,   0.0f, 0.0f, 1.0f,   0.0f, 0.0f,   // bottom left
+	//	-0.5f,  0.5f, 0.0f,   1.0f, 1.0f, 0.0f,   0.0f, 2.0f    // top left 
+	//};
+	vertices = fractal->getVertex ();
+	int sizeVertex = fractal->getNumVertex ();
 
 	// Vertex Buffer Object, Vertex Array Object, Element Buffer Object
 
-	bufferConfig (vertices, sizeVertex, indices, sizeIndex);
+	bufferConfig (vertices, sizeVertex);
 
 	textureConfig ();
 
@@ -230,5 +241,7 @@ int main () {
 	glDeleteBuffers (1, &VBO);
 	glfwTerminate ();
 	delete myShader;
+	delete fractal;
+	delete[] vertices;
 	return 0;
 }
