@@ -18,7 +18,10 @@ double mouseXPos = 0, mouseYPos = 0;
 unsigned int VBO, VAO, EBO;
 unsigned int texture1, texture2;
 Shader *myShader;
-float mixer = 0.5;
+float mixer = 0.5f;
+float transX = -0.5f, transY = 0.5f, speed = 1.0f;
+bool _scale = true;
+float lastScale = 1.0f, currentScale = 0.0f;
 
 void framebuffer_size_callback (GLFWwindow *window, int w, int h) {
 	glViewport (500, 500, w, h);
@@ -27,6 +30,25 @@ void framebuffer_size_callback (GLFWwindow *window, int w, int h) {
 void processInput (GLFWwindow *window, int key, int scancode, int action, int mods) {
 	if ( key == GLFW_KEY_ESCAPE && action == GLFW_PRESS )
 		glfwSetWindowShouldClose (window, true);
+	if ( key == GLFW_KEY_KP_ADD && (action == GLFW_PRESS || action == GLFW_REPEAT) )
+		speed += 0.1;
+	if ( key == GLFW_KEY_KP_SUBTRACT && (action == GLFW_PRESS || action == GLFW_REPEAT) )
+		if ( speed > 0.1f )
+			speed -= 0.1;
+	if ( key == GLFW_KEY_W && (action == GLFW_PRESS || action == GLFW_REPEAT) )
+		if ( transY < 0.5f )
+			transY += 0.05;
+	if ( key == GLFW_KEY_S && (action == GLFW_PRESS || action == GLFW_REPEAT) )
+		if ( transY > -0.5f )
+			transY -= 0.05;
+	if ( key == GLFW_KEY_A && (action == GLFW_PRESS || action == GLFW_REPEAT) )
+		if ( transX > -0.5f )
+			transX -= 0.05;
+	if ( key == GLFW_KEY_D && (action == GLFW_PRESS || action == GLFW_REPEAT) )
+		if ( transX < 0.5f )
+			transX += 0.05;
+	if ( key == GLFW_KEY_F && action == GLFW_PRESS )
+		_scale = !_scale;
 	if ( key == GLFW_KEY_DOWN && action == GLFW_PRESS ) {
 		if ( mixer >= 0.1 ) {
 			cout << mixer << endl;
@@ -162,7 +184,7 @@ void displayWindow (GLFWwindow *window, int size) {
 
 	myShader->use ();
 	mat4 trans = mat4 (1.0f);
-	trans = rotate (trans, sin (time), vec3 (0.0f, 0.0f, 1.0f));
+	trans = rotate (trans, time * speed, vec3 (0.0f, 0.0f, 1.0f));
 	myShader->setMat4 ("transform", trans);
 
 	glBindVertexArray (VAO); // seeing as we only have a single VAO there's no need to bind it every time, but we'll do so to keep things a bit more organized
@@ -171,10 +193,13 @@ void displayWindow (GLFWwindow *window, int size) {
 	/// second container
 	myShader->use ();
 	trans = mat4 (1.0f);
-	trans = translate (trans, vec3 (-0.5, 0.5, 0.0));
-	trans = scale (trans, vec3 (sin(time), cos(time), sin(time) / 2 + 0.5f));
+	trans = translate (trans, vec3 (transX, transY, 0.0));
+	//trans = translate (trans, vec3 (-0.5, 0.5, 0.0));
+	if ( _scale )
+		lastScale += 0.01;
+	trans = scale (trans, vec3 (sin (lastScale), cos (lastScale), sin (lastScale)));
 	myShader->setMat4 ("transform", trans);
-	
+
 	glDrawElements (GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
 	// glBindVertexArray(0); // no need to unbind it every time 
 
